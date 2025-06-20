@@ -1,0 +1,92 @@
+<main class="container my-5">
+    <div class="container text-center">
+        <h2 class="text-center mb-4">Menampilkan File PDF</h2>
+            <div class="nav-button">
+                <button id="prev" class="btn btn-outline-dark"> Sebelumnya</button>
+                <span>Halaman <span id="page-num">1</span> dari <span id="page-count">?</span></span>
+                <input type="number" class="mx-2" id="page-input" min="1" placeholder="Halaman..." style="width: 150px;">
+                <button id="GoTo" class="btn btn-outline-dark">Pergi</button>
+                <button id="next" class="btn btn-outline-dark"> Berikutnya</button>
+            </div>
+        </div>
+    <div class="d-flex justify-content-center mt-3">
+        <canvas id="pdf-canvas"></canvas>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script>
+    const url='komponen/file/06_Warna.pdf';
+
+    let pdfDoc=null,
+        pageNum=1,
+        pageRendering=false,
+        pageNumPending=null,
+        scale=1,
+        canvas=document.getElementById('pdf-canvas');
+        ctx = canvas.getContext('2d');
+
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport=page.getViewport({scale:scale});
+                canvas.height=viewport.height;
+                canvas.width=viewport.width;
+
+                const renderContext={canvasContext: ctx,
+                    viewport: viewport
+                };
+
+                const renderTask=page.render(renderContext);
+
+                renderTask.promise.then(function(){
+                    pageRendering = false;
+                    if(pageNumPending!==null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            document.getElementById('page-num').textContent = num;
+        }
+
+        function queueRenderPage(num){
+            if(pageRendering) {
+                pageNumPending = num ;
+            }
+            else {
+                renderPage(num);
+            }
+        }
+        
+        function onPrevPage(){
+            if(pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        }
+
+        function onNextPage() {
+            if(pageNum >=pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        }
+        document.getElementById('prev').addEventListener('click', onPrevPage);
+        document.getElementById('next').addEventListener('click', onNextPage);
+        document.getElementById('GoTo').addEventListener('click', function() {
+            const input = document.getElementById('page-input');
+            const targetPage = parseInt(input.value);
+
+            if(!isNaN(targetPage) && targetPage >= 1 && targetPage <= pdfDoc.numPages) {
+                pageNum = targetPage;
+                queueRenderPage(pageNum);
+            } else {
+                alert("Halaman Tidak ada")
+            }
+        })
+        
+        pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+            pdfDoc=pdfDoc_;
+            document.getElementById('page-count').textContent=pdfDoc.numPages;
+            renderPage(pageNum);
+        });
+</script>

@@ -1,0 +1,110 @@
+<main class="container my-5">
+    <div class="row mt-5">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Statistik Mahasiswa Per Prodi</h5>
+                    <canvas id="prodiChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mt-4 mt-md-0 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Statistik Mahasiswa Per Jenis
+                    kelamin</h5>
+                    <canvas id="genderChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mt-4 mt-md-0">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Keterangan</h5>
+                    <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Perspiciatis fugit architecto voluptatibus! Similique debitis sint illo rerum culpa sit minima, sequi assumenda libero error vitae numquam maxime explicabo repellat quas.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mt-4 mt-md-0">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Tahun ke tahun</h5>
+                    <canvas id="tahunChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div> 
+</main>
+
+<?php include "komponen/data.php"; ?>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<script>
+    const prodiLabels = <?= json_encode(array_keys($prodi)) ;?>;
+    const prodiData = <?= json_encode(array_values($prodi)) ;?>;
+
+    const genderLabels = <?= json_encode(array_keys($gender)) ;?>;
+    const genderData = <?= json_encode(array_values($gender)) ;?>;
+
+    const tahunLabels = <?= json_encode(array_keys($tahun)) ;?>;
+    const tahunData = <?= json_encode(array_values($tahun)) ;?>;
+
+new Chart(document.getElementById('prodiChart'), {
+    type: 'bar',
+    data: {
+        labels: prodiLabels,
+        datasets: [{
+            label: 'Jumlah Mahasiswa Per Prodi',
+            data: prodiData,
+            backgroundColor: ['#000e66', '#2d9c27', '#003bde']
+        }]
+    },
+    options: {
+        responsive: true,
+    }
+}
+);
+
+new Chart(document.getElementById('genderChart'), {
+    type: 'pie',
+    data: {
+        labels: genderLabels,
+        datasets: [{
+            label: 'Jumlah Mahasiswa Per Jenis Kelamin',
+            data: genderData,
+            backgroundColor: ['#333', '#d1088e']
+        }]
+    },
+    options: {
+        responsive: true,
+    }
+}
+);
+
+new Chart (document.getElementById('tahunChart'), {
+    type: 'line',
+    data: {
+        labels: tahunLabels,
+        datasets: [{
+            label: 'Jumlah Mahasiswa Masuk Per Tahun',
+            data: tahunData,
+            backgroundColor: ['#333','#d1088e'],
+            tension: 0.4,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            fill: true,
+            pointBackgroundColor: 'white',
+            pointBorderColor: 'rgba(75, 192, 192, 1)',
+        }]
+    },
+    options: {
+        responsive: true,
+    }
+}
+);
+
+</script>
